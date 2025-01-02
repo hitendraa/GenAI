@@ -1,0 +1,117 @@
+datasource db {
+  provider = "mongodb"
+  url      = env("DB_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Order {
+  createdAt   DateTime         @default(now())
+  id          String           @id @default(auto()) @map("_id") @db.ObjectId
+  orderDate   DateTime?
+  status      EnumOrderStatus?
+  totalAmount Float?
+  updatedAt   DateTime         @updatedAt
+  user        User?            @relation(fields: [userId], references: [id])
+  userId      String?          @db.ObjectId
+}
+
+model Product {
+  carts       Cart[]
+  category    Category?   @relation(fields: [categoryId], references: [id])
+  categoryId  String?     @db.ObjectId
+  createdAt   DateTime    @default(now())
+  description String?
+  id          String      @id @default(auto()) @map("_id") @db.ObjectId
+  inventories Inventory[]
+  name        String?
+  price       Float?
+  stock       Int?
+  updatedAt   DateTime    @updatedAt
+}
+
+model Cart {
+  createdAt     DateTime @default(now())
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  product       Product? @relation(fields: [productId], references: [id])
+  productId     String?  @db.ObjectId
+  totalQuantity Int?
+  updatedAt     DateTime @updatedAt
+  user          User?    @relation(fields: [userId], references: [id])
+  userId        String?  @db.ObjectId
+}
+
+model Category {
+  createdAt   DateTime  @default(now())
+  description String?
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  name        String?
+  products    Product[]
+  updatedAt   DateTime  @updatedAt
+}
+
+model User {
+  carts     Cart[]
+  createdAt DateTime @default(now())
+  email     String?  @unique
+  firstName String?
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  lastName  String?
+  orders    Order[]
+  password  String
+  roles     Json
+  updatedAt DateTime @updatedAt
+  username  String   @unique
+}
+
+model Gst {
+  createdAt DateTime @default(now())
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  rate      Float?
+  typeField String?
+  updatedAt DateTime @updatedAt
+}
+
+model Payment {
+  amountPaid    Float?
+  createdAt     DateTime @default(now())
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  paymentMethod String?
+  transactionId String?
+  updatedAt     DateTime @updatedAt
+}
+
+model Coupon {
+  code               String?
+  createdAt          DateTime  @default(now())
+  discountPercentage Float?
+  expiryDate         DateTime?
+  id                 String    @id @default(auto()) @map("_id") @db.ObjectId
+  updatedAt          DateTime  @updatedAt
+}
+
+model Inventory {
+  createdAt         DateTime @default(now())
+  id                String   @id @default(auto()) @map("_id") @db.ObjectId
+  product           Product? @relation(fields: [productId], references: [id])
+  productId         String?  @db.ObjectId
+  quantityAvailable Int?
+  updatedAt         DateTime @updatedAt
+}
+
+model Shipping {
+  address        String?
+  city           String?
+  country        String?
+  createdAt      DateTime @default(now())
+  id             String   @id @default(auto()) @map("_id") @db.ObjectId
+  postalCode     String?
+  shippingMethod String?
+  updatedAt      DateTime @updatedAt
+}
+
+enum EnumOrderStatus {
+  Option1
+}
